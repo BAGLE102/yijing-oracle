@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#efe8d5" />
+  <meta name="description" content="以三枚銅錢起卦，在一爐清香的時間裡觀照當下。" />
+  <title>觀易 · 易經占卜</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="觀易首頁">
+      <span class="seal">易</span>
+      <span><strong>觀易</strong><small>一念 · 六爻 · 萬象</small></span>
+    </a>
+    <button class="text-button" id="openGuide" type="button">如何問卦</button>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">THE BOOK OF CHANGES</p>
+        <h1>靜心一問，<br><em>觀照此刻的變化。</em></h1>
+        <p class="intro">寫下此刻最想釐清的問題，以三枚銅錢、六次擲筊起卦。卦象不是命令，而是一面觀看處境的鏡子。</p>
+      </div>
+      <div class="bagua" aria-hidden="true">
+        <span>☰</span><span>☱</span><span>☲</span><span>☳</span>
+        <b>陰<br>陽</b>
+        <span>☴</span><span>☵</span><span>☶</span><span>☷</span>
+      </div>
+    </section>
+
+    <section class="oracle-shell" aria-labelledby="askTitle">
+      <div class="step-label">壹 · 問</div>
+      <div class="ask-panel">
+        <div>
+          <h2 id="askTitle">你想問什麼？</h2>
+          <p>一次專注一件事，使用開放式問題會更容易得到啟發。</p>
+        </div>
+        <label class="question-field">
+          <span class="sr-only">輸入你的問題</span>
+          <textarea id="question" maxlength="120" rows="3" placeholder="例如：面對目前的研究方向，我該留意什麼？"></textarea>
+          <span class="counter"><b id="charCount">0</b>/120</span>
+        </label>
+        <button class="primary-button" id="castButton" type="button">
+          <span>誠心起卦</span><i>擲六次銅錢</i>
+        </button>
+        <p class="form-note" id="formNote" role="status"></p>
+      </div>
+    </section>
+
+    <section class="casting-section" id="castingSection" aria-live="polite" hidden>
+      <div class="step-label">貳 · 起卦</div>
+      <div class="casting-card">
+        <div class="coins" aria-hidden="true">
+          <span class="coin">乾</span><span class="coin">坤</span><span class="coin">易</span>
+        </div>
+        <p id="castingStatus">凝神，擲出第一爻…</p>
+        <div class="mini-lines" id="miniLines"></div>
+      </div>
+    </section>
+
+    <section class="result-section" id="resultSection" hidden>
+      <div class="step-label">參 · 觀象</div>
+      <article class="result-card" id="resultCard">
+        <div class="result-head">
+          <div>
+            <p class="result-kicker">本卦 · THE PRESENT</p>
+            <h2><span id="primaryNumber"></span> <span id="primaryName"></span></h2>
+            <p id="primaryPinyin"></p>
+          </div>
+          <div class="hex-symbol" id="primarySymbol" aria-hidden="true"></div>
+        </div>
+
+        <div class="hexagram-area">
+          <div class="drawn-hexagram" id="primaryLines" aria-label="本卦六爻"></div>
+          <div class="changing-arrow" id="changingArrow" aria-hidden="true">變<br>爻<br>→</div>
+          <div class="changed-wrap" id="changedWrap">
+            <p>之卦</p>
+            <div class="drawn-hexagram small" id="changedLines" aria-label="之卦六爻"></div>
+            <strong id="changedName"></strong>
+          </div>
+        </div>
+
+        <blockquote id="questionEcho"></blockquote>
+
+        <div class="reading-grid">
+          <div class="reading-block">
+            <span>卦意</span>
+            <h3 id="theme"></h3>
+            <p id="reading"></p>
+          </div>
+          <div class="reading-block accent">
+            <span>行動提示</span>
+            <h3>此刻宜</h3>
+            <p id="advice"></p>
+          </div>
+        </div>
+        <p class="moving-note" id="movingNote"></p>
+        <footer class="result-footer">
+          <span>觀易 · 易經占卜</span>
+          <time id="resultDate"></time>
+        </footer>
+      </article>
+
+      <div class="actions">
+        <button class="secondary-button" id="downloadButton" type="button">下載結果圖片</button>
+        <button class="secondary-button" id="copyButton" type="button">複製結果圖片</button>
+        <button class="text-button restart" id="restartButton" type="button">重新問卦</button>
+      </div>
+      <p class="share-status" id="shareStatus" role="status"></p>
+      <p class="disclaimer">占卜結果僅供自我反思與文化體驗，不應取代醫療、法律、財務或其他專業建議。</p>
+    </section>
+  </main>
+
+  <dialog id="guideDialog">
+    <button class="dialog-close" id="closeGuide" type="button" aria-label="關閉">×</button>
+    <p class="eyebrow">問卦三則</p>
+    <h2>先定心，再問事</h2>
+    <ol>
+      <li><b>一事一問</b><span>聚焦一個當下真正關心的處境。</span></li>
+      <li><b>問己不問人</b><span>例如「我能如何調整」，比猜測他人更有幫助。</span></li>
+      <li><b>觀變不宿命</b><span>把卦象當作換一個角度思考的提醒。</span></li>
+    </ol>
+  </dialog>
+
+  <canvas id="exportCanvas" width="1080" height="1350" hidden></canvas>
+  <script src="app.js"></script>
+</body>
+</html>
