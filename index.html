@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#efe8d5" />
   <meta name="description" content="以三枚銅錢起卦，在一爐清香的時間裡觀照當下。" />
   <title>觀易 · 易經占卜</title>
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div>
@@ -44,8 +44,21 @@
           <textarea id="question" maxlength="120" rows="3" placeholder="例如：面對目前的研究方向，我該留意什麼？"></textarea>
           <span class="counter"><b id="charCount">0</b>/120</span>
         </label>
+        <fieldset class="casting-modes">
+          <legend>選擇起卦方式</legend>
+          <div class="mode-grid">
+            <label>
+              <input type="radio" name="castingMode" value="quick" checked>
+              <span><i>即</i><b>靜心起卦</b><small>自動擲六次銅錢，快速觀象</small></span>
+            </label>
+            <label>
+              <input type="radio" name="castingMode" value="ritual">
+              <span><i>龜</i><b>龜甲銅錢</b><small>親手搖動、倒出，逐爻成卦</small></span>
+            </label>
+          </div>
+        </fieldset>
         <button class="primary-button" id="castButton" type="button">
-          <span>誠心起卦</span><i>擲六次銅錢</i>
+          <span id="castButtonTitle">誠心起卦</span><i id="castButtonHint">自動擲六次銅錢</i>
         </button>
         <p class="form-note" id="formNote" role="status"></p>
       </div>
@@ -54,11 +67,40 @@
     <section class="casting-section" id="castingSection" aria-live="polite" hidden>
       <div class="step-label">貳 · 起卦</div>
       <div class="casting-card">
-        <div class="coins" aria-hidden="true">
-          <span class="coin">乾</span><span class="coin">坤</span><span class="coin">易</span>
+        <div id="quickCasting">
+          <div class="coins" aria-hidden="true">
+            <span class="coin">乾</span><span class="coin">坤</span><span class="coin">易</span>
+          </div>
+          <p id="castingStatus">凝神，擲出第一爻…</p>
+          <div class="mini-lines" id="miniLines"></div>
         </div>
-        <p id="castingStatus">凝神，擲出第一爻…</p>
-        <div class="mini-lines" id="miniLines"></div>
+
+        <div class="ritual-casting" id="ritualCasting" hidden>
+          <div class="ritual-progress">
+            <span id="ritualRoundLabel">第一爻 · 由下而上</span>
+            <strong><b id="ritualRoundNumber">1</b> / 6</strong>
+          </div>
+          <div class="tortoise-stage" id="tortoiseStage">
+            <button class="tortoise-shell" id="tortoiseShell" type="button" aria-label="按住龜甲左右搖動">
+              <span class="shell-glow"></span>
+              <span class="shell-body">
+                <i class="shell-ring ring-one"></i><i class="shell-ring ring-two"></i>
+                <i class="shell-mark mark-one">☰</i><i class="shell-mark mark-two">☵</i><i class="shell-mark mark-three">☷</i>
+              </span>
+              <span class="inside-coins" aria-hidden="true"><i>乾</i><i>坤</i><i>易</i></span>
+            </button>
+            <div class="coin-tray" id="coinTray" aria-label="銅錢落下結果">
+              <span class="ritual-coin" data-coin="0"><b>？</b><small></small></span>
+              <span class="ritual-coin" data-coin="1"><b>？</b><small></small></span>
+              <span class="ritual-coin" data-coin="2"><b>？</b><small></small></span>
+            </div>
+          </div>
+          <div class="shake-meter" aria-hidden="true"><i id="shakeMeterFill"></i></div>
+          <p class="ritual-instruction" id="ritualInstruction">按住龜甲左右搖動，讓三枚銅錢充分翻動。</p>
+          <p class="coin-rule">正面記 3 · 背面記 2 · 六次由下往上成卦</p>
+          <button class="spill-button" id="spillCoinsButton" type="button" disabled>搖動尚未足夠</button>
+          <div class="ritual-built-lines" id="ritualBuiltLines" aria-label="目前已完成的爻"></div>
+        </div>
       </div>
     </section>
 
@@ -137,6 +179,6 @@
   </dialog>
 
   <canvas id="exportCanvas" width="1080" height="1350" hidden></canvas>
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

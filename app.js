@@ -69,6 +69,9 @@ const TRIGRAM_BITS = { "乾": "111", "兌": "110", "離": "101", "震": "100", "
 const PATTERN_TO_INDEX = new Map(HEXAGRAMS.map((h, i) => [TRIGRAM_BITS[h.lower] + TRIGRAM_BITS[h.upper], i]));
 const $ = (id) => document.getElementById(id);
 const state = { question: "", lines: [], primary: null, changed: null };
+const LINE_LABELS = { 6: "老陰 · 動爻", 7: "少陽 · 靜爻", 8: "少陰 · 靜爻", 9: "老陽 · 動爻" };
+const ORDINALS = ["一", "二", "三", "四", "五", "六"];
+let ritualStage = "idle", shakeEnergy = 0, shellPointerActive = false, shellLastX = 0, shellTravel = 0, ritualDragged = false;
 
 $("question").addEventListener("input", (e) => { $("charCount").textContent = e.target.value.length; $("formNote").textContent = ""; });
 $("openGuide").addEventListener("click", () => $("guideDialog").showModal());
@@ -106,6 +109,17 @@ function getHexagram(bits) { return HEXAGRAMS[PATTERN_TO_INDEX.get(bits)]; }
 
 function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
+function getCastingMode() { return document.querySelector('input[name="castingMode"]:checked')?.value || "quick"; }
+
+function updateCastingModeCopy() {
+  const ritual = getCastingMode() === "ritual";
+  $("castButtonTitle").textContent = ritual ? "進入龜甲起卦" : "誠心起卦";
+  $("castButtonHint").textContent = ritual ? "親手搖六次銅錢" : "自動擲六次銅錢";
+}
+
+document.querySelectorAll('input[name="castingMode"]').forEach(input => input.addEventListener("change", updateCastingModeCopy));
+updateCastingModeCopy();
+
 $("castButton").addEventListener("click", async () => {
   const question = $("question").value.trim();
   if (!question) {
@@ -114,16 +128,26 @@ $("castButton").addEventListener("click", async () => {
     return;
   }
 
+  if (getCastingMode() === "ritual") {
+    startRitualCasting(question);
+    return;
+  }
+  await startQuickCasting(question);
+});
+
+async function startQuickCasting(question) {
   state.question = question;
   state.lines = [];
   $("castButton").disabled = true;
   $("resultSection").hidden = true;
   $("castingSection").hidden = false;
+  $("quickCasting").hidden = false;
+  $("ritualCasting").hidden = true;
   $("miniLines").replaceChildren();
   $("castingSection").scrollIntoView({ behavior: "smooth", block: "center" });
 
   for (let i = 0; i < 6; i++) {
-    $("castingStatus").textContent = `凝神，擲出第${["一", "二", "三", "四", "五", "六"][i]}爻…`;
+    $("castingStatus").textContent = `凝神，擲出第${ORDINALS[i]}爻…`;
     await delay(520);
     const value = castLine();
     state.lines.push(value);
@@ -133,6 +157,10 @@ $("castButton").addEventListener("click", async () => {
     await delay(180);
   }
 
+  finishCasting();
+}
+
+function finishCasting() {
   state.primary = getHexagram(bitsFromLines(state.lines));
   state.changed = getHexagram(bitsFromLines(state.lines, true));
   renderResult();
@@ -140,6 +168,136 @@ $("castButton").addEventListener("click", async () => {
   $("resultSection").hidden = false;
   $("castButton").disabled = false;
   $("resultSection").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function startRitualCasting(question) {
+  state.question = question;
+  state.lines = [];
+  ritualStage = "shaking";
+  $("castButton").disabled = true;
+  $("resultSection").hidden = true;
+  $("castingSection").hidden = false;
+  $("quickCasting").hidden = true;
+  $("ritualCasting").hidden = false;
+  $("ritualBuiltLines").replaceChildren();
+  prepareRitualRound();
+  $("castingSection").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function resetRitualCoins() {
+  const tray = $("coinTray");
+  tray.classList.remove("spilled");
+  tray.querySelectorAll(".ritual-coin").forEach(coin => {
+    coin.className = "ritual-coin";
+    coin.querySelector("b").textContent = "？";
+    coin.querySelector("small").textContent = "";
+  });
+}
+
+function prepareRitualRound() {
+  ritualStage = "shaking";
+  shakeEnergy = 0;
+  const round = state.lines.length;
+  $("ritualRoundNumber").textContent = String(round + 1);
+  $("ritualRoundLabel").textContent = `第${ORDINALS[round]}爻 · ${round === 0 ? "由最下方開始" : "由下而上"}`;
+  $("ritualInstruction").textContent = "按住龜甲左右搖動，讓三枚銅錢充分翻動。也可以輕點龜甲搖一下。";
+  $("shakeMeterFill").style.width = "0%";
+  $("spillCoinsButton").disabled = true;
+  $("spillCoinsButton").textContent = "搖動尚未足夠";
+  $("tortoiseShell").classList.remove("is-pouring", "is-shaking", "nudge");
+  $("tortoiseShell").style.setProperty("--shell-x", "0px");
+  $("tortoiseShell").style.setProperty("--shell-r", "0deg");
+  resetRitualCoins();
+}
+
+function addShakeEnergy(amount) {
+  if (ritualStage !== "shaking") return;
+  shakeEnergy = Math.min(10, shakeEnergy + amount);
+  $("shakeMeterFill").style.width = `${shakeEnergy * 10}%`;
+  if (shakeEnergy >= 10) {
+    $("spillCoinsButton").disabled = false;
+    $("spillCoinsButton").textContent = "傾倒龜甲，落下銅錢";
+    $("ritualInstruction").textContent = "銅錢已充分翻動。現在把龜甲傾斜，讓三枚銅錢落下。";
+    if (navigator.vibrate) navigator.vibrate(18);
+  }
+}
+
+function nudgeRitualShell() {
+  if (ritualStage !== "shaking") return;
+  const shell = $("tortoiseShell");
+  shell.classList.remove("nudge");
+  void shell.offsetWidth;
+  shell.classList.add("nudge", "is-shaking");
+  addShakeEnergy(2.2);
+  setTimeout(() => shell.classList.remove("nudge", "is-shaking"), 560);
+}
+
+function endShellPointer(event) {
+  if (!shellPointerActive) return;
+  shellPointerActive = false;
+  const shell = $("tortoiseShell");
+  shell.classList.remove("is-shaking");
+  shell.style.setProperty("--shell-x", "0px");
+  shell.style.setProperty("--shell-r", "0deg");
+  if (event.pointerId !== undefined && shell.hasPointerCapture?.(event.pointerId)) shell.releasePointerCapture(event.pointerId);
+}
+
+$("tortoiseShell").addEventListener("pointerdown", event => {
+  if (ritualStage !== "shaking") return;
+  shellPointerActive = true; shellLastX = event.clientX; shellTravel = 0; ritualDragged = false;
+  event.currentTarget.setPointerCapture?.(event.pointerId);
+  event.currentTarget.classList.add("is-shaking");
+});
+
+$("tortoiseShell").addEventListener("pointermove", event => {
+  if (!shellPointerActive || ritualStage !== "shaking") return;
+  const dx = event.clientX - shellLastX;
+  shellLastX = event.clientX; shellTravel += Math.abs(dx);
+  if (shellTravel > 10) ritualDragged = true;
+  const rect = event.currentTarget.getBoundingClientRect();
+  const offset = Math.max(-72, Math.min(72, event.clientX - rect.left - rect.width / 2));
+  event.currentTarget.style.setProperty("--shell-x", `${offset}px`);
+  event.currentTarget.style.setProperty("--shell-r", `${offset * .08}deg`);
+  if (Math.abs(dx) > 2) addShakeEnergy(Math.min(1.05, Math.abs(dx) / 13));
+});
+
+$("tortoiseShell").addEventListener("pointerup", endShellPointer);
+$("tortoiseShell").addEventListener("pointercancel", endShellPointer);
+$("tortoiseShell").addEventListener("click", () => {
+  if (ritualDragged) { ritualDragged = false; return; }
+  nudgeRitualShell();
+});
+
+async function spillRitualCoins() {
+  ritualStage = "spilling";
+  $("spillCoinsButton").disabled = true;
+  const faces = [randomBit(), randomBit(), randomBit()];
+  const value = 6 + faces.reduce((sum, face) => sum + face, 0);
+  $("tortoiseShell").classList.add("is-pouring");
+  await delay(280);
+  $("coinTray").querySelectorAll(".ritual-coin").forEach((coin, index) => {
+    const isFront = faces[index] === 1;
+    coin.classList.toggle("is-back", !isFront);
+    coin.querySelector("b").textContent = isFront ? "正" : "背";
+    coin.querySelector("small").textContent = isFront ? "3" : "2";
+  });
+  $("coinTray").classList.add("spilled");
+  if (navigator.vibrate) navigator.vibrate([12, 35, 16]);
+  await delay(1050);
+  state.lines.push(value);
+  const line = document.createElement("div");
+  line.className = `mini-line ${lineIsYang(value) ? "yang" : "yin"}${lineChanges(value) ? " moving" : ""}`;
+  $("ritualBuiltLines").appendChild(line);
+  $("ritualInstruction").textContent = `${faces.map(face => face ? "正" : "背").join("、")}，合計 ${value}：${LINE_LABELS[value]}。`;
+  ritualStage = "landed";
+  $("spillCoinsButton").disabled = false;
+  $("spillCoinsButton").textContent = state.lines.length === 6 ? "六爻已成，觀看卦象" : "收回銅錢，繼續下一爻";
+}
+
+$("spillCoinsButton").addEventListener("click", () => {
+  if (ritualStage === "shaking" && shakeEnergy >= 10) spillRitualCoins();
+  else if (ritualStage === "landed" && state.lines.length < 6) prepareRitualRound();
+  else if (ritualStage === "landed" && state.lines.length === 6) finishCasting();
 });
 
 function renderResult() {

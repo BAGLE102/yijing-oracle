@@ -59,6 +59,17 @@ textarea::placeholder { color: #929184; }
 .primary-button:hover { background: var(--jade); transform: translateY(-2px); }
 .primary-button:disabled { opacity: .55; transform: none; cursor: wait; }
 .form-note, .share-status { min-height: 1.5em; text-align: center; color: var(--cinnabar); font-size: 13px; }
+.casting-modes { border: 0; padding: 0; margin: 0 0 22px; }
+.casting-modes legend { margin-bottom: 10px; color: var(--ink-soft); font-size: 12px; letter-spacing: .12em; }
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mode-grid label { cursor: pointer; }
+.mode-grid input { position: absolute; opacity: 0; pointer-events: none; }
+.mode-grid label > span { min-height: 82px; display: grid; grid-template-columns: 42px 1fr; grid-template-rows: auto auto; align-content: center; column-gap: 12px; padding: 13px 15px; border: 1px solid var(--line); background: rgba(255,255,255,.22); transition: .2s; }
+.mode-grid i { grid-row: 1 / 3; align-self: center; display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; color: var(--cinnabar); font-style: normal; font-size: 17px; }
+.mode-grid b { font-size: 14px; font-weight: 600; letter-spacing: .08em; }
+.mode-grid small { color: var(--ink-soft); font-size: 10px; line-height: 1.5; }
+.mode-grid input:checked + span { border-color: var(--jade); background: rgba(49,91,80,.08); box-shadow: inset 3px 0 var(--jade); }
+.mode-grid input:focus-visible + span { outline: 2px solid var(--cinnabar); outline-offset: 2px; }
 
 .casting-card { text-align: center; }
 .coins { height: 110px; display: flex; justify-content: center; align-items: center; gap: 16px; }
@@ -69,6 +80,56 @@ textarea::placeholder { color: #929184; }
 .mini-line { height: 5px; background: var(--ink); position: relative; animation: lineIn .25s ease-out; }
 .mini-line.yin { background: linear-gradient(90deg, var(--ink) 0 42%, transparent 42% 58%, var(--ink) 58%); }
 @keyframes lineIn { from { opacity: 0; transform: scaleX(.3); } }
+
+.ritual-casting { max-width: 680px; margin: auto; }
+.ritual-progress { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 13px; border-bottom: 1px solid var(--line); color: var(--ink-soft); font-size: 12px; letter-spacing: .12em; }
+.ritual-progress strong { color: var(--cinnabar); font: 500 14px ui-sans-serif, system-ui; }
+.ritual-progress strong b { font-size: 24px; }
+.tortoise-stage { position: relative; height: 370px; display: grid; place-items: center; overflow: hidden; border: 1px solid rgba(57,53,41,.14); background: radial-gradient(ellipse at 50% 90%, rgba(74,62,37,.17), transparent 45%), linear-gradient(rgba(255,255,255,.18), rgba(222,210,181,.15)); touch-action: none; }
+.tortoise-stage::before { content: ""; position: absolute; inset: 17px; border: 1px solid rgba(57,53,41,.08); pointer-events: none; }
+.tortoise-shell { --shell-x: 0px; --shell-r: 0deg; position: absolute; z-index: 3; left: 50%; top: 42%; width: 245px; height: 188px; padding: 0; border: 0; background: transparent; transform: translate(calc(-50% + var(--shell-x)), -50%) rotate(var(--shell-r)); cursor: grab; touch-action: none; transition: filter .2s; user-select: none; }
+.tortoise-shell:active { cursor: grabbing; }
+.tortoise-shell:focus-visible { outline: 2px solid var(--cinnabar); outline-offset: 8px; border-radius: 50%; }
+.shell-glow { position: absolute; left: 12%; right: 12%; bottom: -8%; height: 25%; border-radius: 50%; background: rgba(73,54,25,.2); filter: blur(14px); }
+.shell-body { position: absolute; inset: 0; overflow: hidden; border: 3px double #72532a; border-radius: 52% 52% 44% 44% / 60% 60% 40% 40%; background: radial-gradient(ellipse at 50% 40%, rgba(248,211,107,.58), transparent 27%), repeating-radial-gradient(ellipse at 50% 48%, rgba(80,48,18,.18) 0 2px, transparent 3px 13px), linear-gradient(145deg,#9a692d,#d5a34c 42%,#8a5a26 72%,#5e3c20); box-shadow: inset 0 0 0 10px rgba(76,47,21,.18), inset 0 -25px 35px rgba(53,31,12,.26), 0 18px 30px rgba(61,44,20,.22); }
+.shell-body::before, .shell-body::after { content: ""; position: absolute; left: 50%; top: 7%; bottom: 8%; width: 34%; transform: translateX(-50%); border: 2px solid rgba(78,47,20,.56); border-radius: 48%; }
+.shell-body::after { left: 8%; right: 8%; top: 45%; bottom: auto; width: auto; height: 1px; transform: none; border: 0; border-top: 2px solid rgba(78,47,20,.5); box-shadow: 0 -48px 0 rgba(78,47,20,.36), 0 48px 0 rgba(78,47,20,.4); }
+.shell-ring { position: absolute; z-index: 1; border: 2px solid rgba(74,43,18,.44); border-radius: 50%; pointer-events: none; }
+.ring-one { inset: 18% 12%; }
+.ring-two { inset: 29% 25%; }
+.shell-mark { position: absolute; z-index: 2; color: rgba(65,36,14,.68); font-style: normal; font-size: 23px; text-shadow: 0 1px rgba(255,224,139,.25); }
+.mark-one { left: 19%; top: 37%; }.mark-two { left: 45%; top: 14%; }.mark-three { right: 18%; top: 39%; }
+.inside-coins { position: absolute; z-index: 4; inset: 36% 28%; display: flex; justify-content: center; gap: 2px; transform: rotate(-4deg); pointer-events: none; }
+.inside-coins i { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; border: 2px double #7a5523; background: radial-gradient(circle,#d5a94e 0 55%,#92652b 57% 66%,#d6ae58 68%); color: #5e411c; font: 700 12px serif; box-shadow: 0 4px 7px rgba(35,22,8,.36); }
+.tortoise-shell.is-shaking .inside-coins i:nth-child(1) { animation: coinRattleA .24s linear infinite; }
+.tortoise-shell.is-shaking .inside-coins i:nth-child(2) { animation: coinRattleB .19s linear infinite; }
+.tortoise-shell.is-shaking .inside-coins i:nth-child(3) { animation: coinRattleA .21s linear infinite reverse; }
+.tortoise-shell.nudge { animation: shellNudge .55s ease-in-out; }
+.tortoise-shell.is-pouring { animation: shellPour 1.05s cubic-bezier(.2,.7,.2,1) forwards; pointer-events: none; }
+@keyframes shellNudge { 20% { transform: translate(-62%,-50%) rotate(-7deg); } 45% { transform: translate(-38%,-50%) rotate(7deg); } 70% { transform: translate(-57%,-50%) rotate(-4deg); } }
+@keyframes shellPour { 42% { transform: translate(-38%,-60%) rotate(25deg); } 100% { transform: translate(-50%,-50%) rotate(0); } }
+@keyframes coinRattleA { 50% { transform: translate(5px,-5px) rotate(16deg); } }
+@keyframes coinRattleB { 50% { transform: translate(-5px,4px) rotate(-18deg); } }
+.coin-tray { position: absolute; z-index: 5; left: 50%; bottom: 24px; width: 330px; height: 102px; transform: translateX(-50%); border-radius: 50%; border: 1px solid rgba(76,53,25,.3); background: radial-gradient(ellipse, rgba(255,255,255,.36), rgba(151,122,72,.16)); box-shadow: inset 0 8px 18px rgba(80,57,28,.08); pointer-events: none; }
+.ritual-coin { position: absolute; left: 50%; top: -95px; width: 66px; height: 66px; display: grid; place-items: center; border-radius: 50%; border: 4px double #7d5926; background: radial-gradient(circle, #dfb95d 0 24%, #8c612a 26% 34%, #d4a64e 36% 70%, #7d5525 72%); color: #503617; box-shadow: 0 9px 15px rgba(62,41,16,.26); opacity: 0; transform: translate(-50%,-130px) rotate(0); transition: transform .9s cubic-bezier(.17,.75,.28,1.18), opacity .16s; }
+.ritual-coin b { font-size: 17px; }
+.ritual-coin small { position: absolute; top: calc(100% + 8px); color: var(--ink-soft); font: 11px ui-sans-serif, system-ui; }
+.coin-tray.spilled .ritual-coin { opacity: 1; }
+.coin-tray.spilled .ritual-coin:nth-child(1) { transform: translate(-148px,106px) rotate(-22deg); }
+.coin-tray.spilled .ritual-coin:nth-child(2) { transform: translate(-34px,119px) rotate(12deg); transition-delay: .1s; }
+.coin-tray.spilled .ritual-coin:nth-child(3) { transform: translate(76px,101px) rotate(28deg); transition-delay: .18s; }
+.coin-tray.spilled .ritual-coin.is-back { filter: brightness(.79) sepia(.25); }
+.shake-meter { height: 4px; margin: 15px 0 0; overflow: hidden; background: rgba(49,91,80,.12); }
+.shake-meter i { display: block; width: 0; height: 100%; background: linear-gradient(90deg,var(--jade),#c49a45); transition: width .15s; }
+.ritual-instruction { min-height: 2.9em; margin: 15px auto 2px; color: var(--ink); line-height: 1.6; }
+.coin-rule { margin: 0 0 15px; color: var(--ink-soft); font-size: 10px; letter-spacing: .1em; }
+.spill-button { min-width: 240px; padding: 13px 22px; border: 1px solid var(--jade); background: var(--jade); color: var(--paper); font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: .12em; cursor: pointer; transition: .2s; }
+.spill-button:hover:not(:disabled) { transform: translateY(-2px); background: var(--ink); }
+.spill-button:disabled { opacity: .38; cursor: not-allowed; }
+.ritual-built-lines { width: 105px; min-height: 1px; margin: 22px auto 0; display: flex; flex-direction: column-reverse; gap: 6px; }
+.ritual-built-lines .mini-line { position: relative; }
+.ritual-built-lines .mini-line.moving::after { content: "○"; position: absolute; left: calc(100% + 7px); top: 50%; transform: translateY(-55%); color: var(--cinnabar); font: 11px sans-serif; }
+.ritual-built-lines .mini-line.yin.moving::after { content: "×"; }
 
 .result-card { background: #f5eedc; border: 1px solid rgba(72,57,33,.25); box-shadow: var(--shadow); padding: clamp(30px, 6vw, 68px); position: relative; overflow: hidden; }
 .result-card::after { content: "易"; position: absolute; right: -35px; top: 38%; color: rgba(49,91,80,.045); font-size: 280px; line-height: 1; }
@@ -142,6 +203,14 @@ dialog li span { color: var(--ink-soft); margin-top: 6px; line-height: 1.6; }
   .restart { margin: 4px auto 0; }
   .sister-site { grid-template-columns: auto 1fr; margin-top: 76px; padding: 28px 22px; }
   .sister-site > a { grid-column: 1 / -1; width: 100%; }
+  .mode-grid { grid-template-columns: 1fr; }
+  .tortoise-stage { height: 340px; }
+  .tortoise-shell { width: 210px; height: 163px; }
+  .coin-tray { width: 285px; }
+  .ritual-coin { width: 58px; height: 58px; }
+  .coin-tray.spilled .ritual-coin:nth-child(1) { transform: translate(-127px,108px) rotate(-22deg); }
+  .coin-tray.spilled .ritual-coin:nth-child(2) { transform: translate(-30px,117px) rotate(12deg); }
+  .coin-tray.spilled .ritual-coin:nth-child(3) { transform: translate(67px,103px) rotate(28deg); }
 }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }
