@@ -103,6 +103,14 @@ blockquote { margin: 0 0 34px; padding: 18px 22px; border-left: 3px solid var(--
 .secondary-button:hover { background: var(--ink); color: var(--paper); }
 .restart { margin-left: 10px; }
 .disclaimer { text-align: center; color: #777568; font-size: 11px; margin-top: 28px; }
+.sister-site { margin: 110px auto 0; max-width: 920px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 28px; padding: 36px 40px; color: #f1eadb; background: linear-gradient(135deg, #111329, #252744); border: 1px solid rgba(225,201,130,.42); box-shadow: var(--shadow); }
+.tarot-mark { display: grid; place-items: center; width: 70px; height: 96px; color: #e1c982; border: 1px solid #c7aa62; background: radial-gradient(circle at 50% 50%, transparent 0 12px, rgba(225,201,130,.7) 13px 14px, transparent 15px), repeating-radial-gradient(circle, rgba(225,201,130,.12) 0 1px, transparent 2px 8px), #282a48; font-size: 26px; }
+.sister-site .eyebrow { margin: 0 0 7px; color: #d9bd70; }
+.sister-site h2 { margin: 0 0 7px; font-size: clamp(22px, 3vw, 30px); font-weight: 500; }
+.sister-site p:last-child { margin: 0; color: #b7b4bf; font-size: 13px; line-height: 1.7; }
+.sister-site > a { display: flex; align-items: center; gap: 20px; min-width: 190px; padding: 15px 18px; color: #e1c982; border: 1px solid rgba(225,201,130,.7); text-decoration: none; font-size: 13px; transition: .2s; }
+.sister-site > a:hover { color: #16182f; background: #e1c982; transform: translateY(-2px); }
+.sister-site > a span { margin-left: auto; }
 
 dialog { width: min(520px, calc(100vw - 36px)); border: 1px solid var(--line); background: #f5eedc; color: var(--ink); box-shadow: var(--shadow); padding: 44px; }
 dialog::backdrop { background: rgba(24,27,24,.55); backdrop-filter: blur(4px); }
@@ -132,6 +140,8 @@ dialog li span { color: var(--ink-soft); margin-top: 6px; line-height: 1.6; }
   .actions { flex-direction: column; }
   .secondary-button { width: 100%; }
   .restart { margin: 4px auto 0; }
+  .sister-site { grid-template-columns: auto 1fr; margin-top: 76px; padding: 28px 22px; }
+  .sister-site > a { grid-column: 1 / -1; width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }
