@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#efe8d5" />
   <meta name="description" content="以三枚銅錢起卦，在一爐清香的時間裡觀照當下。" />
   <title>觀易 · 易經占卜</title>
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div>
@@ -81,12 +81,39 @@
             <strong><b id="ritualRoundNumber">1</b> / 6</strong>
           </div>
           <div class="tortoise-stage" id="tortoiseStage">
-            <button class="tortoise-shell" id="tortoiseShell" type="button" aria-label="按住龜甲左右搖動">
+            <button class="tortoise-shell" id="tortoiseShell" type="button" aria-label="按住金龜搖動銅錢">
               <span class="shell-glow"></span>
-              <span class="shell-body">
-                <i class="shell-ring ring-one"></i><i class="shell-ring ring-two"></i>
-                <i class="shell-mark mark-one">☰</i><i class="shell-mark mark-two">☵</i><i class="shell-mark mark-three">☷</i>
-              </span>
+              <svg class="golden-tortoise" viewBox="0 0 360 250" aria-hidden="true">
+                <defs>
+                  <radialGradient id="shellGold" cx="42%" cy="28%" r="78%">
+                    <stop offset="0" stop-color="#f6d77c"/>
+                    <stop offset=".42" stop-color="#c58c38"/>
+                    <stop offset=".78" stop-color="#81501f"/>
+                    <stop offset="1" stop-color="#513318"/>
+                  </radialGradient>
+                  <linearGradient id="limbGold" x1="0" y1="0" x2="1" y2="1">
+                    <stop stop-color="#d8aa53"/><stop offset="1" stop-color="#725020"/>
+                  </linearGradient>
+                </defs>
+                <ellipse class="tortoise-shadow" cx="178" cy="220" rx="132" ry="17"/>
+                <path class="tortoise-tail" d="M43 132 8 146l38 12z"/>
+                <path class="tortoise-leg back-leg" d="M78 172c-21 10-32 28-25 37 8 9 30-1 49-22z"/>
+                <path class="tortoise-leg front-leg" d="M257 172c20 10 31 29 23 38-8 9-29-2-47-23z"/>
+                <path class="tortoise-leg back-leg top" d="M78 88C57 78 45 60 52 51c8-9 30 2 49 23z"/>
+                <path class="tortoise-leg front-leg top" d="M257 88c20-10 32-28 24-37-8-9-30 2-48 23z"/>
+                <path class="tortoise-neck" d="M274 100c23-12 43-5 51 13l-4 40c-13 11-31 12-50 0z"/>
+                <path class="tortoise-head" d="M306 92c30-7 49 10 48 34-1 25-22 40-51 29l-10-28z"/>
+                <circle class="tortoise-eye" cx="334" cy="119" r="4"/>
+                <path class="tortoise-mouth" d="M337 139c5 1 9 0 13-3"/>
+                <ellipse class="shell-rim" cx="174" cy="126" rx="129" ry="96"/>
+                <path class="shell-body" d="M56 128C56 69 103 28 174 28s118 41 118 100c0 53-47 91-118 91S56 181 56 128Z"/>
+                <path class="scute center" d="m174 48 39 29-15 45-48 1-16-45z"/>
+                <path class="scute left" d="m77 103 57-25 16 45-31 43-57-14z"/>
+                <path class="scute right" d="m213 77 58 27 14 48-57 14-30-44z"/>
+                <path class="scute bottom" d="m119 166 31-43 48-1 30 44-20 39-68 1z"/>
+                <path class="shell-highlight" d="M88 83c23-31 57-43 90-42"/>
+                <text class="shell-seal" x="174" y="146" text-anchor="middle">易</text>
+              </svg>
               <span class="inside-coins" aria-hidden="true"><i>乾</i><i>坤</i><i>易</i></span>
             </button>
             <div class="coin-tray" id="coinTray" aria-label="銅錢落下結果">
@@ -96,7 +123,7 @@
             </div>
           </div>
           <div class="shake-meter" aria-hidden="true"><i id="shakeMeterFill"></i></div>
-          <p class="ritual-instruction" id="ritualInstruction">按住龜甲左右搖動，讓三枚銅錢充分翻動。</p>
+          <p class="ritual-instruction" id="ritualInstruction">按住金龜持續搖動，感受銅錢在龜甲中翻轉。</p>
           <p class="coin-rule">正面記 3 · 背面記 2 · 六次由下往上成卦</p>
           <button class="spill-button" id="spillCoinsButton" type="button" disabled>搖動尚未足夠</button>
           <div class="ritual-built-lines" id="ritualBuiltLines" aria-label="目前已完成的爻"></div>
@@ -179,6 +206,6 @@
   </dialog>
 
   <canvas id="exportCanvas" width="1080" height="1350" hidden></canvas>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

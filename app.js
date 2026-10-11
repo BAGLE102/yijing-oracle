@@ -71,7 +71,7 @@ const $ = (id) => document.getElementById(id);
 const state = { question: "", lines: [], primary: null, changed: null };
 const LINE_LABELS = { 6: "老陰 · 動爻", 7: "少陽 · 靜爻", 8: "少陰 · 靜爻", 9: "老陽 · 動爻" };
 const ORDINALS = ["一", "二", "三", "四", "五", "六"];
-let ritualStage = "idle", shakeEnergy = 0, shellPointerActive = false, shellLastX = 0, shellTravel = 0, ritualDragged = false;
+let ritualStage = "idle", shakeEnergy = 0, shellPointerActive = false, shellLastX = 0, shakeTimer = null;
 
 $("question").addEventListener("input", (e) => { $("charCount").textContent = e.target.value.length; $("formNote").textContent = ""; });
 $("openGuide").addEventListener("click", () => $("guideDialog").showModal());
@@ -200,13 +200,11 @@ function prepareRitualRound() {
   const round = state.lines.length;
   $("ritualRoundNumber").textContent = String(round + 1);
   $("ritualRoundLabel").textContent = `第${ORDINALS[round]}爻 · ${round === 0 ? "由最下方開始" : "由下而上"}`;
-  $("ritualInstruction").textContent = "按住龜甲左右搖動，讓三枚銅錢充分翻動。也可以輕點龜甲搖一下。";
+  $("ritualInstruction").textContent = "將三枚銅錢收入龜甲。按住金龜持續搖動，鬆手即可停下。";
   $("shakeMeterFill").style.width = "0%";
   $("spillCoinsButton").disabled = true;
-  $("spillCoinsButton").textContent = "搖動尚未足夠";
-  $("tortoiseShell").classList.remove("is-pouring", "is-shaking", "nudge");
-  $("tortoiseShell").style.setProperty("--shell-x", "0px");
-  $("tortoiseShell").style.setProperty("--shell-r", "0deg");
+  $("spillCoinsButton").textContent = "先按住金龜搖動";
+  $("tortoiseShell").classList.remove("is-pouring", "is-shaking", "is-ready", "nudge");
   resetRitualCoins();
 }
 
@@ -216,8 +214,9 @@ function addShakeEnergy(amount) {
   $("shakeMeterFill").style.width = `${shakeEnergy * 10}%`;
   if (shakeEnergy >= 10) {
     $("spillCoinsButton").disabled = false;
-    $("spillCoinsButton").textContent = "傾倒龜甲，落下銅錢";
-    $("ritualInstruction").textContent = "銅錢已充分翻動。現在把龜甲傾斜，讓三枚銅錢落下。";
+    $("spillCoinsButton").textContent = "將銅錢倒在案上";
+    $("ritualInstruction").textContent = shellPointerActive ? "銅錢已充分搖勻，現在可以鬆手。" : "銅錢已充分搖勻。按下方按鈕，將它們倒在案上。";
+    $("tortoiseShell").classList.add("is-ready");
     if (navigator.vibrate) navigator.vibrate(18);
   }
 }
@@ -227,45 +226,45 @@ function nudgeRitualShell() {
   const shell = $("tortoiseShell");
   shell.classList.remove("nudge");
   void shell.offsetWidth;
-  shell.classList.add("nudge", "is-shaking");
-  addShakeEnergy(2.2);
-  setTimeout(() => shell.classList.remove("nudge", "is-shaking"), 560);
+  shell.classList.add("nudge");
+  addShakeEnergy(1.8);
+  setTimeout(() => shell.classList.remove("nudge"), 430);
 }
 
 function endShellPointer(event) {
   if (!shellPointerActive) return;
   shellPointerActive = false;
+  clearInterval(shakeTimer);
+  shakeTimer = null;
   const shell = $("tortoiseShell");
   shell.classList.remove("is-shaking");
-  shell.style.setProperty("--shell-x", "0px");
-  shell.style.setProperty("--shell-r", "0deg");
   if (event.pointerId !== undefined && shell.hasPointerCapture?.(event.pointerId)) shell.releasePointerCapture(event.pointerId);
+  if (shakeEnergy >= 10) $("ritualInstruction").textContent = "銅錢已充分搖勻。按下方按鈕，將它們倒在案上。";
 }
 
 $("tortoiseShell").addEventListener("pointerdown", event => {
   if (ritualStage !== "shaking") return;
-  shellPointerActive = true; shellLastX = event.clientX; shellTravel = 0; ritualDragged = false;
+  shellPointerActive = true;
+  shellLastX = event.clientX;
   event.currentTarget.setPointerCapture?.(event.pointerId);
   event.currentTarget.classList.add("is-shaking");
+  $("ritualInstruction").textContent = "保持按住；也可以一邊輕輕左右移動，加快搖勻。";
+  addShakeEnergy(.45);
+  clearInterval(shakeTimer);
+  shakeTimer = setInterval(() => addShakeEnergy(.65), 90);
 });
 
 $("tortoiseShell").addEventListener("pointermove", event => {
   if (!shellPointerActive || ritualStage !== "shaking") return;
   const dx = event.clientX - shellLastX;
-  shellLastX = event.clientX; shellTravel += Math.abs(dx);
-  if (shellTravel > 10) ritualDragged = true;
-  const rect = event.currentTarget.getBoundingClientRect();
-  const offset = Math.max(-72, Math.min(72, event.clientX - rect.left - rect.width / 2));
-  event.currentTarget.style.setProperty("--shell-x", `${offset}px`);
-  event.currentTarget.style.setProperty("--shell-r", `${offset * .08}deg`);
-  if (Math.abs(dx) > 2) addShakeEnergy(Math.min(1.05, Math.abs(dx) / 13));
+  shellLastX = event.clientX;
+  if (Math.abs(dx) > 3) addShakeEnergy(Math.min(.8, Math.abs(dx) / 18));
 });
 
 $("tortoiseShell").addEventListener("pointerup", endShellPointer);
 $("tortoiseShell").addEventListener("pointercancel", endShellPointer);
 $("tortoiseShell").addEventListener("click", () => {
-  if (ritualDragged) { ritualDragged = false; return; }
-  nudgeRitualShell();
+  if (!shellPointerActive && shakeEnergy < 10) nudgeRitualShell();
 });
 
 async function spillRitualCoins() {
