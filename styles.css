@@ -87,25 +87,25 @@ textarea::placeholder { color: #929184; }
 .ritual-progress strong b { font-size: 24px; }
 .tortoise-stage { position: relative; height: 390px; display: grid; place-items: center; overflow: hidden; border: 1px solid rgba(57,53,41,.14); background: radial-gradient(ellipse at 50% 91%, rgba(74,62,37,.2), transparent 46%), linear-gradient(rgba(255,255,255,.18), rgba(222,210,181,.15)); touch-action: none; }
 .tortoise-stage::before { content: ""; position: absolute; inset: 17px; border: 1px solid rgba(57,53,41,.08); pointer-events: none; }
-.tortoise-shell { position: absolute; z-index: 3; left: 50%; top: 42%; width: 330px; height: 230px; padding: 0; border: 0; background: transparent; transform: translate(-50%,-50%) rotate(0); transform-origin: 52% 56%; cursor: grab; touch-action: none; transition: filter .2s, transform .24s ease; user-select: none; }
+.tortoise-shell { --drag-x: 0px; --drag-y: 0px; --drag-r: 0deg; position: absolute; z-index: 3; left: 50%; top: 42%; width: 330px; height: 230px; padding: 0; border: 0; background: transparent; transform: translate(calc(-50% + var(--drag-x)),calc(-50% + var(--drag-y))) rotate(var(--drag-r)); transform-origin: 52% 56%; cursor: grab; touch-action: none; transition: filter .2s, transform .18s ease; user-select: none; }
 .tortoise-shell:active { cursor: grabbing; }
+.tortoise-shell.is-dragging { transition: filter .2s; }
 .tortoise-shell:focus-visible { outline: 2px solid var(--cinnabar); outline-offset: 5px; border-radius: 48%; }
 .shell-glow { position: absolute; left: 12%; right: 8%; bottom: 3%; height: 18%; border-radius: 50%; background: rgba(73,54,25,.23); filter: blur(14px); }
 .golden-tortoise { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 13px 12px rgba(57,37,15,.2)); }
 .tortoise-shadow { fill: rgba(54,38,20,.19); filter: blur(5px); }
 .tortoise-tail, .tortoise-leg, .tortoise-neck, .tortoise-head { fill: url(#limbGold); stroke: #64411d; stroke-width: 3; stroke-linejoin: round; }
 .tortoise-head { stroke-width: 3.5; }
-.tortoise-eye { fill: #2e2112; stroke: #f1ce72; stroke-width: 2; }
-.tortoise-mouth { fill: none; stroke: #553719; stroke-width: 2; stroke-linecap: round; }
 .shell-rim { fill: #68431e; stroke: #e6bd60; stroke-width: 5; }
 .shell-body { fill: url(#shellGold); stroke: #563716; stroke-width: 3; }
 .scute { fill: rgba(255,221,132,.08); stroke: rgba(78,45,17,.62); stroke-width: 3; stroke-linejoin: round; }
 .shell-highlight { fill: none; stroke: rgba(255,231,159,.68); stroke-width: 8; stroke-linecap: round; opacity: .62; }
-.shell-seal { fill: rgba(70,39,15,.78); font: 700 43px serif; paint-order: stroke; stroke: rgba(235,188,84,.34); stroke-width: 2; }
+.bagua-mark { fill: rgba(69,39,16,.72); font: 700 22px serif; }
+.shell-seal { fill: rgba(68,37,14,.82); font: 700 48px serif; paint-order: stroke; stroke: rgba(235,188,84,.3); stroke-width: 2; }
 .inside-coins { position: absolute; z-index: 4; left: 41%; top: 47%; width: 90px; height: 52px; pointer-events: none; opacity: 0; }
 .inside-coins i { position: absolute; width: 28px; height: 28px; border-radius: 50%; border: 2px solid #78511e; background: #d6aa50; color: transparent; box-shadow: 0 2px 4px rgba(35,22,8,.35); }
 .inside-coins i:nth-child(1) { left: 2px; top: 12px; }.inside-coins i:nth-child(2) { left: 31px; top: 4px; }.inside-coins i:nth-child(3) { left: 57px; top: 15px; }
-.tortoise-shell.is-shaking { animation: shellHeldShake .19s ease-in-out infinite; filter: brightness(1.06); }
+.tortoise-shell.is-shaking { filter: brightness(1.08); }
 .tortoise-shell.is-shaking .inside-coins { opacity: .42; }
 .tortoise-shell.is-shaking .inside-coins i:nth-child(1) { animation: coinRattleA .16s linear infinite; }
 .tortoise-shell.is-shaking .inside-coins i:nth-child(2) { animation: coinRattleB .14s linear infinite; }
@@ -113,9 +113,8 @@ textarea::placeholder { color: #929184; }
 .tortoise-shell.nudge { animation: shellNudge .42s ease-in-out; }
 .tortoise-shell.is-ready { filter: drop-shadow(0 0 10px rgba(190,139,48,.42)) brightness(1.05); }
 .tortoise-shell.is-pouring { animation: shellPour 1.05s cubic-bezier(.2,.7,.2,1) forwards; pointer-events: none; }
-@keyframes shellHeldShake { 0%,100% { transform: translate(-50%,-50%) rotate(-3deg); } 50% { transform: translate(-50%,-50%) rotate(3deg); } }
-@keyframes shellNudge { 25% { transform: translate(-50%,-50%) rotate(-5deg); } 55% { transform: translate(-50%,-50%) rotate(5deg); } }
-@keyframes shellPour { 40% { transform: translate(-43%,-60%) rotate(29deg); } 78% { transform: translate(-42%,-57%) rotate(36deg); } 100% { transform: translate(-50%,-50%) rotate(0); } }
+@keyframes shellNudge { 25% { transform: translate(calc(-50% + var(--drag-x)),calc(-50% + var(--drag-y))) rotate(-5deg); } 55% { transform: translate(calc(-50% + var(--drag-x)),calc(-50% + var(--drag-y))) rotate(5deg); } }
+@keyframes shellPour { 0% { transform: translate(calc(-50% + var(--drag-x)),calc(-50% + var(--drag-y))) rotate(0); } 40% { transform: translate(-43%,-60%) rotate(29deg); } 78% { transform: translate(-42%,-57%) rotate(36deg); } 100% { transform: translate(-50%,-50%) rotate(0); } }
 @keyframes coinRattleA { 50% { transform: translate(7px,-5px) rotate(18deg); } }
 @keyframes coinRattleB { 50% { transform: translate(-6px,5px) rotate(-20deg); } }
 .coin-tray { position: absolute; z-index: 5; left: 50%; bottom: 24px; width: 330px; height: 102px; transform: translateX(-50%); border-radius: 50%; border: 1px solid rgba(76,53,25,.3); background: radial-gradient(ellipse, rgba(255,255,255,.36), rgba(151,122,72,.16)); box-shadow: inset 0 8px 18px rgba(80,57,28,.08); pointer-events: none; }

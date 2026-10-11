@@ -71,7 +71,8 @@ const $ = (id) => document.getElementById(id);
 const state = { question: "", lines: [], primary: null, changed: null };
 const LINE_LABELS = { 6: "老陰 · 動爻", 7: "少陽 · 靜爻", 8: "少陰 · 靜爻", 9: "老陽 · 動爻" };
 const ORDINALS = ["一", "二", "三", "四", "五", "六"];
-let ritualStage = "idle", shakeEnergy = 0, shellPointerActive = false, shellLastX = 0, shakeTimer = null;
+let ritualStage = "idle", shakeEnergy = 0, shellPointerActive = false, shellLastX = 0, shellLastY = 0;
+let dragX = 0, dragY = 0, dragStartX = 0, dragStartY = 0, pointerStartX = 0, pointerStartY = 0, shellBounds = null, ritualDragged = false;
 
 $("question").addEventListener("input", (e) => { $("charCount").textContent = e.target.value.length; $("formNote").textContent = ""; });
 $("openGuide").addEventListener("click", () => $("guideDialog").showModal());
@@ -200,11 +201,16 @@ function prepareRitualRound() {
   const round = state.lines.length;
   $("ritualRoundNumber").textContent = String(round + 1);
   $("ritualRoundLabel").textContent = `第${ORDINALS[round]}爻 · ${round === 0 ? "由最下方開始" : "由下而上"}`;
-  $("ritualInstruction").textContent = "將三枚銅錢收入龜甲。按住金龜持續搖動，鬆手即可停下。";
+  $("ritualInstruction").textContent = "將三枚銅錢收入龜甲。抓住金龜，在案面上下左右自由拖曳搖動。";
   $("shakeMeterFill").style.width = "0%";
   $("spillCoinsButton").disabled = true;
-  $("spillCoinsButton").textContent = "先按住金龜搖動";
-  $("tortoiseShell").classList.remove("is-pouring", "is-shaking", "is-ready", "nudge");
+  $("spillCoinsButton").textContent = "先拖曳金龜搖動";
+  dragX = 0;
+  dragY = 0;
+  $("tortoiseShell").classList.remove("is-pouring", "is-shaking", "is-dragging", "is-ready", "nudge");
+  $("tortoiseShell").style.setProperty("--drag-x", "0px");
+  $("tortoiseShell").style.setProperty("--drag-y", "0px");
+  $("tortoiseShell").style.setProperty("--drag-r", "0deg");
   resetRitualCoins();
 }
 
@@ -234,10 +240,9 @@ function nudgeRitualShell() {
 function endShellPointer(event) {
   if (!shellPointerActive) return;
   shellPointerActive = false;
-  clearInterval(shakeTimer);
-  shakeTimer = null;
   const shell = $("tortoiseShell");
-  shell.classList.remove("is-shaking");
+  shell.classList.remove("is-shaking", "is-dragging");
+  shell.style.setProperty("--drag-r", "0deg");
   if (event.pointerId !== undefined && shell.hasPointerCapture?.(event.pointerId)) shell.releasePointerCapture(event.pointerId);
   if (shakeEnergy >= 10) $("ritualInstruction").textContent = "銅錢已充分搖勻。按下方按鈕，將它們倒在案上。";
 }
@@ -245,25 +250,46 @@ function endShellPointer(event) {
 $("tortoiseShell").addEventListener("pointerdown", event => {
   if (ritualStage !== "shaking") return;
   shellPointerActive = true;
-  shellLastX = event.clientX;
+  shellLastX = pointerStartX = event.clientX;
+  shellLastY = pointerStartY = event.clientY;
+  dragStartX = dragX;
+  dragStartY = dragY;
+  ritualDragged = false;
+  const stageRect = $("tortoiseStage").getBoundingClientRect();
+  const shellRect = event.currentTarget.getBoundingClientRect();
+  shellBounds = {
+    minX: 12 + shellRect.width / 2 - stageRect.width / 2,
+    maxX: stageRect.width / 2 - shellRect.width / 2 - 12,
+    minY: 12 + shellRect.height / 2 - stageRect.height * .42,
+    maxY: stageRect.height * .58 - shellRect.height / 2 - 12
+  };
   event.currentTarget.setPointerCapture?.(event.pointerId);
-  event.currentTarget.classList.add("is-shaking");
-  $("ritualInstruction").textContent = "保持按住；也可以一邊輕輕左右移動，加快搖勻。";
-  addShakeEnergy(.45);
-  clearInterval(shakeTimer);
-  shakeTimer = setInterval(() => addShakeEnergy(.65), 90);
+  event.currentTarget.classList.add("is-shaking", "is-dragging");
+  $("ritualInstruction").textContent = "保持抓住，自由來回搖動；移動越充分，銅錢越快搖勻。";
 });
 
 $("tortoiseShell").addEventListener("pointermove", event => {
   if (!shellPointerActive || ritualStage !== "shaking") return;
   const dx = event.clientX - shellLastX;
+  const dy = event.clientY - shellLastY;
   shellLastX = event.clientX;
-  if (Math.abs(dx) > 3) addShakeEnergy(Math.min(.8, Math.abs(dx) / 18));
+  shellLastY = event.clientY;
+  const desiredX = dragStartX + event.clientX - pointerStartX;
+  const desiredY = dragStartY + event.clientY - pointerStartY;
+  dragX = Math.max(shellBounds.minX, Math.min(shellBounds.maxX, desiredX));
+  dragY = Math.max(shellBounds.minY, Math.min(shellBounds.maxY, desiredY));
+  if (Math.hypot(event.clientX - pointerStartX, event.clientY - pointerStartY) > 8) ritualDragged = true;
+  event.currentTarget.style.setProperty("--drag-x", `${dragX}px`);
+  event.currentTarget.style.setProperty("--drag-y", `${dragY}px`);
+  event.currentTarget.style.setProperty("--drag-r", `${Math.max(-7, Math.min(7, dx * .35))}deg`);
+  const movement = Math.hypot(dx, dy);
+  if (movement > 2) addShakeEnergy(Math.min(1.15, movement / 15));
 });
 
 $("tortoiseShell").addEventListener("pointerup", endShellPointer);
 $("tortoiseShell").addEventListener("pointercancel", endShellPointer);
 $("tortoiseShell").addEventListener("click", () => {
+  if (ritualDragged) { ritualDragged = false; return; }
   if (!shellPointerActive && shakeEnergy < 10) nudgeRitualShell();
 });
 
